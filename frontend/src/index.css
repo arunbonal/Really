@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+.active hr {
+  @apply block;
+}
+
+.bg-primary {
+  background-color: #ff5722; /* Change to your preferred color */
+}
