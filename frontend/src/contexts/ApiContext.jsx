@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const ApiDataContext = createContext();
 
@@ -6,6 +6,64 @@ export const ApiDataProvider = ({ children }) => {
   const [apiData, setApiData] = useState(null);
   const [detectedText, setDetectedText] = useState("");
   const [currentMenu, setCurrentMenu] = useState("");
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check user authentication status
+  const checkUser = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/auth/user", {
+        method: "GET",
+        credentials: "include",
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error("Fetch user error:", error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkUser();
+    
+    // Set up an interval to check user status every 30 seconds
+    const intervalId = setInterval(checkUser, 30000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const login = () => {
+    window.location.href = "http://localhost:8080/auth/google";
+  };
+
+  const logout = async () => {
+    try {
+      await fetch("http://localhost:8080/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      setUser(null);
+      // Clear any stored data
+      setApiData(null);
+      setDetectedText("");
+      setCurrentMenu("");
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if the request fails, clear the local state
+      setUser(null);
+      setApiData(null);
+      setDetectedText("");
+      setCurrentMenu("");
+    }
+  };
 
   const value = {
     apiData,
@@ -14,6 +72,11 @@ export const ApiDataProvider = ({ children }) => {
     setDetectedText,
     currentMenu,
     setCurrentMenu,
+    user,
+    isLoading,
+    login,
+    logout,
+    checkUser,
   };
 
   return (

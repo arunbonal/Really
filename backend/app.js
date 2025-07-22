@@ -14,17 +14,23 @@ const meds = require("./routes/meds.js");
 
 // package uses
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:5174", process.env.FRONTEND_URL],
+  credentials: true
+}));
 app.use(express.json());
 
 // Session Middleware
 app.use(
   session({ 
     secret: "Capstone@73",
-    resave: false, 
+    resave: true, 
     saveUninitialized: true,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: false, // set to true if using https
+      sameSite: 'lax',
+      httpOnly: false // Allow JavaScript access for debugging
     }
   })
 );

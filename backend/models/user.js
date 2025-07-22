@@ -11,7 +11,8 @@ const UserSchema = new mongoose.Schema({
   // Previous Scans for all product types
   scans: [
     {
-      productId: mongoose.Schema.Types.ObjectId,
+      productId: { type: String, required: true }, // Changed from ObjectId to String for barcode numbers
+      productName: { type: String, default: "Unknown Product" }, // Add product name field
       category: { type: String, enum: ["medicine", "food", "beauty"] },
       scanDate: { type: Date, default: Date.now },
     },
@@ -63,3 +64,5 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;
+
+

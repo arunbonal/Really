@@ -1,17 +1,20 @@
-food pdts : 
+food products : 
 	input barcode
 	convert to barcode number (ean-13)
-	call openfoodworld api with barcode number as param
+	call openfoodworld api with barcode number as parameter
 	fetch and send response to frontend
 
-skincare pdts :
+skincare products :
 	input barcode
 	convert to barcode number (ean-13)
-	find pdt by barcode number from db
+	find product by barcode number from database
 	fetch and send response to frontend
 
-med pdts :
-	input back image of med
-	run cv model and identify the med
-	find med by name from db
+medicines :
+	input back image of medicine
+	run cv model and identify the medicine
+	query medicine by name from database
 	fetch and send response to frontend
+
+
+
