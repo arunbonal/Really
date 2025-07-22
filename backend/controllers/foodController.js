@@ -1,11 +1,6 @@
 const axios = require("axios");
-const foodProducts = require("../init/FoodData");
 const User = require("../models/user");
 
-// home route
-module.exports.home = async (req, res) => {
-  res.json(foodProducts);
-};
 
 // search route
 module.exports.search = async (req, res) => {
