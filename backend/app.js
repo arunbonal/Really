@@ -5,6 +5,7 @@ var cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const app = express();
+const MongoStore = require('connect-mongo');
 
 // file imports
 const connectToDb = require("./db.js");
@@ -20,12 +21,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Session Middleware
 app.use(
-  session({ 
+  session({
     secret: "Capstone@73",
-    resave: true, 
+    resave: true,
     saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
       secure: false, // set to true if using https

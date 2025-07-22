@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApiData } from "../contexts/ApiContext";
-import dotenv from "dotenv";
-dotenv.config();
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -24,8 +23,8 @@ const Profile = () => {
     setDeleting(true);
     try {
       const url = category 
-        ? `${process.env.BACKEND_URL}/auth/scans?category=${category}`
-        : `${process.env.BACKEND_URL}/auth/scans`;
+        ? `${backendUrl}/auth/scans?category=${category}`
+        : `${backendUrl}/auth/scans`;
         
       const response = await fetch(url, {
         method: "DELETE",
@@ -36,7 +35,7 @@ const Profile = () => {
         const result = await response.json();
         console.log("Scans deleted:", result);
         // Refresh user stats
-        const statsResponse = await fetch(`${process.env.BACKEND_URL}/auth/stats`, {
+        const statsResponse = await fetch(`${backendUrl}/auth/stats`, {
           credentials: "include",
         });
         if (statsResponse.ok) {
@@ -63,7 +62,7 @@ const Profile = () => {
     const fetchUserStats = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${process.env.BACKEND_URL}/auth/stats`, {
+        const response = await fetch(`${backendUrl}/auth/stats`, {
           credentials: "include",
         });
         if (response.ok) {
@@ -91,7 +90,7 @@ const Profile = () => {
       if (user) {
         const fetchUserStats = async () => {
           try {
-            const response = await fetch(`${process.env.BACKEND_URL}/auth/stats`, {
+            const response = await fetch(`${backendUrl}/auth/stats`, {
               credentials: "include",
             });
             if (response.ok) {
