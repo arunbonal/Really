@@ -16,7 +16,7 @@ const meds = require("./routes/meds.js");
 // package uses
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174", process.env.FRONTEND_URL],
+  origin: ["https://really-neon.vercel.app"], // "http://localhost:5173"
   credentials: true
 }));
 app.use(express.json());
@@ -28,10 +28,10 @@ app.use(
     saveUninitialized: true,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-      secure: false, // set to true if using https
-      sameSite: 'lax',
-      httpOnly: false // Allow JavaScript access for debugging
+      maxAge: 24 * 60 * 60 * 1000,
+      secure: true, // must be true for HTTPS
+      sameSite: 'none', // must be 'none' for cross-site cookies
+      httpOnly: true
     }
   })
 );
