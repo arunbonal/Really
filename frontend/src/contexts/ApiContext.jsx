@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const ApiDataContext = createContext();
 
 export const ApiDataProvider = ({ children }) => {
@@ -12,9 +12,9 @@ export const ApiDataProvider = ({ children }) => {
   // Check user authentication status
   const checkUser = async () => {
     try {
-      const response = await fetch("http://localhost:8080/auth/user", {
+      const response = await fetch(`${backendUrl}/auth/user`, {
         method: "GET",
-        credentials: "include",
+        credentials: "include", 
       });
       
       if (response.ok) {
@@ -41,12 +41,12 @@ export const ApiDataProvider = ({ children }) => {
   }, []);
 
   const login = () => {
-    window.location.href = "http://localhost:8080/auth/google";
+    window.location.href = `${backendUrl}/auth/google`;
   };
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:8080/auth/logout", {
+      await fetch(`${backendUrl}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
