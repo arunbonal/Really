@@ -39,10 +39,6 @@ exports.getCurrentUser = (req, res) => {
 
 // Get user statistics
 exports.getUserStats = async (req, res) => {
-  console.log("=== GET USER STATS REQUEST ===");
-  console.log("User authenticated:", req.isAuthenticated());
-  console.log("User:", req.user ? req.user._id : "No user");
-  console.log("Session:", req.session);
   
   if (!req.isAuthenticated()) {
     console.log("User not authenticated, returning 401");
@@ -51,8 +47,6 @@ exports.getUserStats = async (req, res) => {
 
   try {
     const user = req.user;
-    console.log("Getting stats for user:", user._id);
-    console.log("User scans:", user.scans);
     
     // Calculate statistics
     const totalScans = user.scans.length;

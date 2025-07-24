@@ -14,6 +14,7 @@ const beauty = require("./routes/beauty.js");
 const meds = require("./routes/meds.js");
 
 // package uses
+app.set('trust proxy', 1); // trust first proxy (Render uses a proxy)
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: ["https://really-neon.vercel.app", "http://localhost:5173"], // "http://localhost:5173"
