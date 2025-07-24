@@ -24,7 +24,6 @@ export const ApiDataProvider = ({ children }) => {
         setUser(null);
       }
     } catch (error) {
-      console.error("Fetch user error:", error);
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -56,7 +55,6 @@ export const ApiDataProvider = ({ children }) => {
       setDetectedText("");
       setCurrentMenu("");
     } catch (error) {
-      console.error("Logout error:", error);
       // Even if the request fails, clear the local state
       setUser(null);
       setApiData(null);

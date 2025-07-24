@@ -11,7 +11,6 @@ const AuthTest = () => {
         credentials: 'include'
       });
       const result = await response.json();
-      console.log('Auth test result:', result);
       setTestResult(result);
     } catch (error) {
       console.error('Auth test error:', error);
@@ -28,7 +27,6 @@ const AuthTest = () => {
         credentials: 'include'
       });
       const result = await response.json();
-      console.log('Stats test result:', result);
       setTestResult(result);
     } catch (error) {
       console.error('Stats test error:', error);

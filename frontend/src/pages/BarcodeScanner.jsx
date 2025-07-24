@@ -43,7 +43,6 @@ const BarcodeScanner = () => {
           videoRef.current,
           (result, err) => {
             if (result) {
-              console.log("Barcode detected:", result.text);
               setScanResult(result.text);
               setIsScanning(false);
 

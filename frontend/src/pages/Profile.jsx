@@ -33,7 +33,6 @@ const Profile = () => {
       
       if (response.ok) {
         const result = await response.json();
-        console.log("Scans deleted:", result);
         // Refresh user stats
         const statsResponse = await fetch(`${backendUrl}/auth/stats`, {
           credentials: "include",
@@ -67,7 +66,6 @@ const Profile = () => {
         });
         if (response.ok) {
           const stats = await response.json();
-          console.log("Fetched user stats:", stats);
           setUserStats(stats);
         } else {
           console.error("Failed to fetch stats:", response.status);

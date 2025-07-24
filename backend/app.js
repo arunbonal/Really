@@ -16,10 +16,12 @@ const meds = require("./routes/meds.js");
 // package uses
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ["https://really-neon.vercel.app"], // "http://localhost:5173"
+  origin: ["https://really-neon.vercel.app", "http://localhost:5173"], // "http://localhost:5173"
   credentials: true
 }));
 app.use(express.json());
+
+const isProduction = process.env.NODE_ENV === "production";
 
 app.use(
   session({
@@ -29,8 +31,8 @@ app.use(
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URL }),
     cookie: {
       maxAge: 24 * 60 * 60 * 1000,
-      secure: true, // must be true for HTTPS
-      sameSite: 'none', // must be 'none' for cross-site cookies
+      secure: isProduction, // true only in production (HTTPS)
+      sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in prod, 'lax' for local dev
       httpOnly: true
     }
   })
