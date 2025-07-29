@@ -66,6 +66,17 @@ const MedsScanner = () => {
         });
 
         const result = await response.json();
+        
+        // Check if the response contains an error
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        
+        // Check if text property exists and is an array
+        if (!result.text || !Array.isArray(result.text) || result.text.length === 0) {
+          throw new Error("No text detected in the image");
+        }
+        
         setDetectedText(result.text.join(", "));
         
         // Add a small delay for better UX
@@ -76,7 +87,10 @@ const MedsScanner = () => {
         console.error("Error processing image:", error);
         setIsScanning(false);
         setScanningAnimation(false);
-        alert("Error processing image. Please try again.");
+        
+        // Show more specific error message
+        const errorMessage = error.message || "Error processing image. Please try again.";
+        alert(errorMessage);
       }
     }, "image/jpeg");
   };
