@@ -14,9 +14,19 @@ except ImportError as e:
     EASYOCR_AVAILABLE = False
 
 app = Flask(__name__)
-CORS(app, origins=["https://really-neon.vercel.app", "http://localhost:5173"], 
+
+# Configure CORS properly
+from flask_cors import CORS
+CORS(app, 
+     origins=["https://really-neon.vercel.app", "http://localhost:5173"], 
      methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"])
+     allow_headers=["Content-Type", "Authorization"],
+     supports_credentials=True)
+
+# Root endpoint
+@app.route('/', methods=['GET'])
+def root():
+    return jsonify({"message": "CV Server is running!", "status": "healthy"})
 
 # Test endpoint
 @app.route('/test', methods=['GET'])
@@ -32,32 +42,19 @@ def health():
         "port": os.environ.get("PORT", "not set")
     })
 
-# Handle preflight requests
-@app.route('/upload', methods=['OPTIONS'])
-def handle_preflight():
-    response = app.make_default_options_response()
-    response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    return response
-
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
         file = request.files.get('file')
         if not file:
-            response = jsonify({"error": "No file uploaded"})
-            response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-            return response, 400
+            return jsonify({"error": "No file uploaded"}), 400
 
         # Read image file as numpy array
         img = Image.open(file.stream).convert('RGB')
         
         # Check if EasyOCR is available
         if not EASYOCR_AVAILABLE:
-            response = jsonify({"error": "OCR service not available"})
-            response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-            return response, 500
+            return jsonify({"error": "OCR service not available"}), 500
             
         # Initialize EasyOCR reader (will download models on first use)
         try:
@@ -70,24 +67,16 @@ def upload():
             lines = [result[1] for result in results if result[1].strip()]
             
             if not lines:
-                response = jsonify({"error": "No text detected in the image"})
-                response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-                return response, 400
+                return jsonify({"error": "No text detected in the image"}), 400
                 
-            response = jsonify({"text": lines})
-            response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-            return response
+            return jsonify({"text": lines})
         except Exception as ocr_error:
             print(f"OCR Error: {str(ocr_error)}")
-            response = jsonify({"error": "OCR processing failed. Please try again."})
-            response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-            return response, 500
+            return jsonify({"error": "OCR processing failed. Please try again."}), 500
             
     except Exception as e:
         print(f"Error processing upload: {str(e)}")
-        response = jsonify({"error": f"Internal server error: {str(e)}"})
-        response.headers['Access-Control-Allow-Origin'] = 'https://really-neon.vercel.app'
-        return response, 500
+        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 3000))
