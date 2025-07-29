@@ -24,11 +24,22 @@ def upload():
 
         # Read image file as numpy array
         img = Image.open(file.stream).convert('RGB')
-        # Use pytesseract to do OCR
-        text = pytesseract.image_to_string(img)
-        # Split into lines, remove empty lines
-        lines = [line for line in text.split('\n') if line.strip()]
-        return jsonify({"text": lines})
+        
+        # Check if tesseract is available
+        try:
+            # Use pytesseract to do OCR
+            text = pytesseract.image_to_string(img)
+            # Split into lines, remove empty lines
+            lines = [line for line in text.split('\n') if line.strip()]
+            
+            if not lines:
+                return jsonify({"error": "No text detected in the image"}), 400
+                
+            return jsonify({"text": lines})
+        except Exception as ocr_error:
+            print(f"OCR Error: {str(ocr_error)}")
+            return jsonify({"error": "OCR processing failed. Please ensure Tesseract is installed."}), 500
+            
     except Exception as e:
         print(f"Error processing upload: {str(e)}")
         return jsonify({"error": f"Internal server error: {str(e)}"}), 500
