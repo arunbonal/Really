@@ -18,10 +18,11 @@ app = Flask(__name__)
 # Configure CORS properly
 from flask_cors import CORS
 CORS(app, 
-     origins="*",  # Allow all origins temporarily for testing
+     origins=["https://really-neon.vercel.app", "http://localhost:5173", "http://localhost:3000"],
      methods=["GET", "POST", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-     expose_headers=["Content-Type", "Authorization"])
+     expose_headers=["Content-Type", "Authorization"],
+     supports_credentials=True)
 
 # Root endpoint
 @app.route('/', methods=['GET'])
@@ -42,6 +43,11 @@ def health():
         "port": os.environ.get("PORT", "not set")
     })
 
+# Simple ping endpoint
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({"message": "pong", "status": "ok"})
+
 # CORS test endpoint
 @app.route('/cors-test', methods=['GET', 'POST', 'OPTIONS'])
 def cors_test():
@@ -53,23 +59,46 @@ def cors_test():
         "origin": request.headers.get('Origin', 'No origin header')
     })
 
-@app.route('/upload', methods=['POST'])
+@app.route('/upload', methods=['POST', 'OPTIONS'])
 def upload():
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+        response.headers['Access-Control-Allow-Origin'] = request.headers.get('Origin', 'https://really-neon.vercel.app')
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response
+    
     print(f"Upload request received from: {request.headers.get('Origin', 'Unknown')}")
     print(f"Request method: {request.method}")
     print(f"Request headers: {dict(request.headers)}")
     
+    # Add CORS headers to response
+    response_headers = {
+        'Access-Control-Allow-Origin': request.headers.get('Origin', 'https://really-neon.vercel.app'),
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+        'Access-Control-Allow-Credentials': 'true'
+    }
+    
     try:
         file = request.files.get('file')
         if not file:
-            return jsonify({"error": "No file uploaded"}), 400
+            response = jsonify({"error": "No file uploaded"}), 400
+            for key, value in response_headers.items():
+                response[1][key] = value
+            return response
 
         # Read image file as numpy array
         img = Image.open(file.stream).convert('RGB')
         
         # Check if EasyOCR is available
         if not EASYOCR_AVAILABLE:
-            return jsonify({"error": "OCR service not available"}), 500
+            response = jsonify({"error": "OCR service not available"}), 500
+            for key, value in response_headers.items():
+                response[1][key] = value
+            return response
             
         # Initialize EasyOCR reader (will download models on first use)
         try:
@@ -82,16 +111,28 @@ def upload():
             lines = [result[1] for result in results if result[1].strip()]
             
             if not lines:
-                return jsonify({"error": "No text detected in the image"}), 400
+                response = jsonify({"error": "No text detected in the image"}), 400
+                for key, value in response_headers.items():
+                    response[1][key] = value
+                return response
                 
-            return jsonify({"text": lines})
+            response = jsonify({"text": lines})
+            for key, value in response_headers.items():
+                response.headers[key] = value
+            return response
         except Exception as ocr_error:
             print(f"OCR Error: {str(ocr_error)}")
-            return jsonify({"error": "OCR processing failed. Please try again."}), 500
+            response = jsonify({"error": "OCR processing failed. Please try again."}), 500
+            for key, value in response_headers.items():
+                response[1][key] = value
+            return response
             
     except Exception as e:
         print(f"Error processing upload: {str(e)}")
-        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+        response = jsonify({"error": f"Internal server error: {str(e)}"}), 500
+        for key, value in response_headers.items():
+            response[1][key] = value
+        return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 3000))
