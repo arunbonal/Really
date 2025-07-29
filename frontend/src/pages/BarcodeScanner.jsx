@@ -23,13 +23,21 @@ const BarcodeScanner = () => {
 
   useEffect(() => {
     const codeReader = new BrowserMultiFormatReader();
+    let stream = null;
 
     const startScanner = async () => {
       try {
         setIsScanning(true);
         setError("");
         
-        const stream = await navigator.mediaDevices.getUserMedia({
+        // Stop any existing stream first
+        if (videoRef.current && videoRef.current.srcObject) {
+          const existingStream = videoRef.current.srcObject;
+          existingStream.getTracks().forEach(track => track.stop());
+          videoRef.current.srcObject = null;
+        }
+        
+        stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment" },
         });
 
@@ -64,6 +72,15 @@ const BarcodeScanner = () => {
     startScanner();
 
     return () => {
+      // Cleanup: stop the stream and reset the reader
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      if (videoRef.current && videoRef.current.srcObject) {
+        const existingStream = videoRef.current.srcObject;
+        existingStream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
       codeReader.reset();
     };
   }, []);
@@ -105,6 +122,14 @@ const BarcodeScanner = () => {
     setScanResult("");
     setError("");
     setIsScanning(true);
+    
+    // Clean up video stream before reloading
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    
     window.location.reload();
   };
 

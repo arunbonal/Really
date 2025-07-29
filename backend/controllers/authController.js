@@ -11,7 +11,7 @@ exports.googleAuthCallback = [
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     console.log("Logged in successfully");
-    res.redirect(process.env.FRONTEND_URL || "http://localhost:3000");
+    res.redirect(process.env.FRONTEND_URL || "http://localhost:5173");
   }
 ];
 

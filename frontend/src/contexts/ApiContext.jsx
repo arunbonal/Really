@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
+const backendUrl = import.meta.env.VITE_API_URL;
 const ApiDataContext = createContext();
 
 export const ApiDataProvider = ({ children }) => {
@@ -10,7 +10,7 @@ export const ApiDataProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Check user authentication status
-  const checkUser = async () => {
+  const checkUser = async (suppressErrors = false) => {
     try {
       const response = await fetch(`${backendUrl}/auth/user`, {
         method: "GET",
@@ -22,21 +22,25 @@ export const ApiDataProvider = ({ children }) => {
         setUser(userData);
       } else {
         setUser(null);
+        // Only log error if not suppressing
+        if (!suppressErrors && response.status !== 401) {
+          console.error("Auth check failed:", response.status);
+        }
       }
     } catch (error) {
       setUser(null);
+      // Only log error if not suppressing
+      if (!suppressErrors) {
+        console.error("Auth check error:", error);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    checkUser();
-    
-    // Set up an interval to check user status every 30 seconds
-    const intervalId = setInterval(checkUser, 30000);
-    
-    return () => clearInterval(intervalId);
+    // Only check once on initial load, suppress 401 errors
+    checkUser(true);
   }, []);
 
   const login = () => {
