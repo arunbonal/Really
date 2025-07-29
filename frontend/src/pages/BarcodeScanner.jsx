@@ -89,7 +89,7 @@ const BarcodeScanner = () => {
   const sendBarcodeToBackend = async (barcode) => {
     try {
       const response = await fetch(
-        import.meta.env.VITE_API_URL + `/${category}/search/${barcode}`,
+        import.meta.env.VITE_API_URL + `/product/${category}/search/${barcode}`,
         { 
           method: "GET",
           headers: {
