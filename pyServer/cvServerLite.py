@@ -18,10 +18,10 @@ app = Flask(__name__)
 # Configure CORS properly
 from flask_cors import CORS
 CORS(app, 
-     origins=["https://really-neon.vercel.app", "http://localhost:5173"], 
+     origins="*",  # Allow all origins temporarily for testing
      methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"],
-     supports_credentials=True)
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     expose_headers=["Content-Type", "Authorization"])
 
 # Root endpoint
 @app.route('/', methods=['GET'])
@@ -42,8 +42,23 @@ def health():
         "port": os.environ.get("PORT", "not set")
     })
 
+# CORS test endpoint
+@app.route('/cors-test', methods=['GET', 'POST', 'OPTIONS'])
+def cors_test():
+    if request.method == 'OPTIONS':
+        return '', 200
+    return jsonify({
+        "message": "CORS test successful",
+        "method": request.method,
+        "origin": request.headers.get('Origin', 'No origin header')
+    })
+
 @app.route('/upload', methods=['POST'])
 def upload():
+    print(f"Upload request received from: {request.headers.get('Origin', 'Unknown')}")
+    print(f"Request method: {request.method}")
+    print(f"Request headers: {dict(request.headers)}")
+    
     try:
         file = request.files.get('file')
         if not file:
