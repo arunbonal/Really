@@ -20,68 +20,63 @@ const BarcodeScanner = () => {
   };
 
   const category = getCategoryFromPath();
+  const [codeReader, setCodeReader] = useState(null);
 
-  useEffect(() => {
-    const codeReader = new BrowserMultiFormatReader();
+  const startScanner = async () => {
+    const reader = new BrowserMultiFormatReader();
+    setCodeReader(reader);
     let stream = null;
-
-    const startScanner = async () => {
-      try {
-        setIsScanning(true);
-        setError("");
-        
-        // Stop any existing stream first
-        if (videoRef.current && videoRef.current.srcObject) {
-          const existingStream = videoRef.current.srcObject;
-          existingStream.getTracks().forEach(track => track.stop());
-          videoRef.current.srcObject = null;
-        }
-        
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.setAttribute("playsinline", true);
-        }
-
-        codeReader.decodeFromVideoDevice(
-          undefined,
-          videoRef.current,
-          (result, err) => {
-            if (result) {
-              setScanResult(result.text);
-              setIsScanning(false);
-
-              // Send barcode number to backend
-              sendBarcodeToBackend(result.text);
-
-              // Stop scanning after successful detection
-              codeReader.reset();
-            }
-          }
-        );
-      } catch (err) {
-        console.error("Error accessing camera:", err);
-        setError("Failed to access camera. Please check permissions.");
-        setIsScanning(false);
-      }
-    };
-
-    startScanner();
-
-    return () => {
-      // Cleanup: stop the stream and reset the reader
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+    
+    try {
+      setIsScanning(true);
+      setError("");
+      
+      // Stop any existing stream first
       if (videoRef.current && videoRef.current.srcObject) {
         const existingStream = videoRef.current.srcObject;
         existingStream.getTracks().forEach(track => track.stop());
         videoRef.current.srcObject = null;
       }
-      codeReader.reset();
+      
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute("playsinline", true);
+      }
+
+      reader.decodeFromVideoDevice(
+        undefined,
+        videoRef.current,
+        (result, err) => {
+          if (result) {
+            setScanResult(result.text);
+            setIsScanning(false);
+
+            // Send barcode number to backend
+            sendBarcodeToBackend(result.text);
+
+            // Stop scanning after successful detection
+            reader.reset();
+          }
+        }
+      );
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      setError("Failed to access camera. Please check permissions.");
+      setIsScanning(false);
+    }
+  };
+
+  useEffect(() => {
+    startScanner();
+
+    return () => {
+      if (codeReader) {
+        codeReader.reset();
+      }
     };
   }, []);
 
@@ -100,7 +95,12 @@ const BarcodeScanner = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to send barcode to backend");
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 404) {
+          throw new Error("Product not found in our database. Please try a different product.");
+        } else {
+          throw new Error(errorData.message || "Failed to fetch product information");
+        }
       }
 
       const data = await response.json();
@@ -114,23 +114,23 @@ const BarcodeScanner = () => {
       }
     } catch (error) {
       console.error("Error sending barcode:", error);
-      setError("Failed to fetch product information. Please try again.");
+      setError(error.message || "Failed to fetch product information. Please try again.");
     }
   };
 
   const handleRetry = () => {
     setScanResult("");
     setError("");
-    setIsScanning(true);
     
-    // Clean up video stream before reloading
+    // Clean up video stream
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject;
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
     
-    window.location.reload();
+    // Restart the scanner
+    startScanner();
   };
 
   return (
