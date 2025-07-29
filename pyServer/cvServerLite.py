@@ -23,6 +23,15 @@ CORS(app, origins=["https://really-neon.vercel.app", "http://localhost:5173"],
 def test():
     return jsonify({"status": "CV Server is running!"})
 
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({
+        "status": "healthy",
+        "easyocr_available": EASYOCR_AVAILABLE,
+        "port": os.environ.get("PORT", "not set")
+    })
+
 # Handle preflight requests
 @app.route('/upload', methods=['OPTIONS'])
 def handle_preflight():
