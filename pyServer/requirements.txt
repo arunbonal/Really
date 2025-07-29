@@ -1,6 +1,6 @@
 flask
 flask_cors
-pytesseract
+easyocr
 Pillow
 numpy
 opencv-python
