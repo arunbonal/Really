@@ -10,7 +10,6 @@ exports.googleAuth = passport.authenticate("google", { scope: ["profile", "email
 exports.googleAuthCallback = [
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    console.log("Logged in successfully");
     res.redirect(process.env.FRONTEND_URL || "http://localhost:5173");
   }
 ];
@@ -41,7 +40,6 @@ exports.getCurrentUser = (req, res) => {
 exports.getUserStats = async (req, res) => {
   
   if (!req.isAuthenticated()) {
-    console.log("User not authenticated, returning 401");
     return res.status(401).json({ message: "Not authenticated" });
   }
 
@@ -68,7 +66,6 @@ exports.getUserStats = async (req, res) => {
       reviews: user.reviews.length
     };
 
-    console.log("Returning stats:", stats);
     res.json(stats);
   } catch (error) {
     console.error("Error getting user stats:", error);
@@ -78,13 +75,8 @@ exports.getUserStats = async (req, res) => {
 
 // Delete all user scans
 exports.deleteAllScans = async (req, res) => {
-  console.log("=== DELETE ALL SCANS REQUEST ===");
-  console.log("User authenticated:", req.isAuthenticated());
-  console.log("User:", req.user ? req.user._id : "No user");
-  console.log("Category filter:", req.query.category);
   
   if (!req.isAuthenticated()) {
-    console.log("User not authenticated, returning 401");
     return res.status(401).json({ message: "Not authenticated" });
   }
 
@@ -92,8 +84,6 @@ exports.deleteAllScans = async (req, res) => {
     const user = req.user;
     const category = req.query.category;
     
-    console.log("Deleting scans for user:", user._id);
-    console.log("Current scans count:", user.scans.length);
     
     let deletedCount = 0;
     
@@ -102,12 +92,10 @@ exports.deleteAllScans = async (req, res) => {
       const originalCount = user.scans.length;
       user.scans = user.scans.filter(scan => scan.category !== category);
       deletedCount = originalCount - user.scans.length;
-      console.log(`Deleted ${deletedCount} scans for category: ${category}`);
     } else {
       // Delete all scans
       deletedCount = user.scans.length;
       user.scans = [];
-      console.log("All scans deleted successfully");
     }
     
     await user.save();

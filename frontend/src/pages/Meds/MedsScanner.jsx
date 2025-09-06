@@ -60,12 +60,34 @@ const MedsScanner = () => {
       formData.append("file", blob, "captured.jpg");
 
       try {
-        const response = await fetch(import.meta.env.VITE_CV_SERVER_URL + "/upload", {
+        const cvServerUrl = import.meta.env.VITE_CV_SERVER_URL;
+        if (!cvServerUrl) {
+          throw new Error("CV Server URL not configured. Please check your environment variables.");
+        }
+
+        const response = await fetch(cvServerUrl + "/upload", {
           method: "POST",
           body: formData,
         });
 
-        const result = await response.json();
+        // Check if response is ok
+        if (!response.ok) {
+          throw new Error(`CV Server error: ${response.status} ${response.statusText}`);
+        }
+
+        // Check if response has content
+        const responseText = await response.text();
+        if (!responseText) {
+          throw new Error("Empty response from CV server");
+        }
+
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error("Invalid JSON response:", responseText);
+          throw new Error("Invalid response format from CV server");
+        }
         
         // Check if the response contains an error
         if (result.error) {
@@ -81,7 +103,9 @@ const MedsScanner = () => {
         
         // Add a small delay for better UX
         setTimeout(() => {
-          navigate(`/product/meds/${result.text[0]}`);
+          // URL encode the medicine name to handle special characters
+          const medicineName = encodeURIComponent(result.text[0]);
+          navigate(`/product/meds/${medicineName}`);
         }, 500);
       } catch (error) {
         console.error("Error processing image:", error);

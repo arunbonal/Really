@@ -10,10 +10,6 @@ module.exports.home = async (req, res) => {
 module.exports.search = async (req, res) => {
   let barcodeNumber = req.params.barcodeNumber;
   
-  console.log("=== BEAUTY SEARCH REQUEST ===");
-  console.log("Barcode:", barcodeNumber);
-  console.log("User authenticated:", req.isAuthenticated());
-  console.log("User:", req.user ? req.user._id : "No user");
   
   // Search for product in beauty database
   const product = beautyProducts.find(p => p.barcode_number === barcodeNumber);

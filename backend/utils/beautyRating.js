@@ -106,4 +106,3 @@ const ingredientsList = [
 ];
 
 const grade = gradeBeautyProduct(ingredientsList);
-console.log("Product Grade:", grade);

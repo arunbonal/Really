@@ -1,6 +1,6 @@
 import React from "react";
 import BarcodeScanner from "./pages/BarcodeScanner";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import FoodProduct from "./pages/Food/FoodProduct";
 import BeautyProduct from "./pages/Beauty/BeautyProduct";
@@ -12,14 +12,12 @@ import Beauty from "./pages/Beauty/Beauty";
 import Meds from "./pages/Meds/Meds";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { ApiDataProvider } from "./contexts/ApiContext";
 
 const App = () => {
   return (
-    <ApiDataProvider>
-      <div className="min-h-screen">
-        <Navbar />
-        <Routes>
+    <div className="min-h-screen">
+      <Navbar />
+      <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
@@ -34,9 +32,11 @@ const App = () => {
           <Route path="/product/meds" element={<Meds />} />
           <Route path="/product/meds/scan" element={<ProtectedRoute><MedsScanner /></ProtectedRoute>} />
           <Route path="/product/meds/:medsName" element={<ProtectedRoute><MedsProduct /></ProtectedRoute>} />
+          
+          {/* Catch-all route for unmatched paths */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-    </ApiDataProvider>
   );
 };
 

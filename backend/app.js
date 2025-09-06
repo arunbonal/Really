@@ -17,7 +17,7 @@ const meds = require("./routes/meds.js");
 app.set('trust proxy', 1); // trust first proxy (Render uses a proxy)
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: ["https://really-neon.vercel.app", "http://localhost:5173"], // "http://localhost:5173"
+  origin: [process.env.FRONTEND_URL],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']

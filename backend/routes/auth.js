@@ -16,10 +16,6 @@ router.get("/stats", authController.isAuthenticated, authController.getUserStats
 
 // Test authentication endpoint
 router.get("/test", (req, res) => {
-  console.log("=== TEST AUTH ENDPOINT ===");
-  console.log("User authenticated:", req.isAuthenticated());
-  console.log("User:", req.user ? req.user._id : "No user");
-  console.log("Session:", req.session);
   res.json({
     authenticated: req.isAuthenticated(),
     userId: req.user ? req.user._id : null,
