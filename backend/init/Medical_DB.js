@@ -1,18 +1,4 @@
-export interface Medicine {
-  name: string;
-  purpose: string;
-  ingredients: string;
-  sideEffects: string;
-  warnings: string;
-  interactions: string;
-  age: string;
-  pregnancy: string;
-  diabetes: string;
-  trust: string[];
-  alternatives: string[];
-  brands: string[];
-}
-export const MEDICINE_DB: Record<string, Medicine> = {
+const data = {    
   "paracetamol": {
     "name": "Paracetamol",
     "purpose": "Fever reducer, pain reliever",

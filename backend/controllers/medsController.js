@@ -49,3 +49,25 @@ module.exports.search = async (req, res) => {
 
   res.json(medsName);
 };
+
+// fuzzy search route for medicine products
+module.exports.fuzzySearch = async (req, res) => {
+  const { detectedText } = req.body;
+  if (!detectedText) {
+    return res.status(400).json({ error: "No text provided for search." });
+  }
+
+  const searchWords = detectedText.toLowerCase().split(" ");
+
+  // Simple fuzzy matching: check if any word from detected text is included in medicine name
+  const foundMedicine = meds.find(medicine => {
+    const medicineNameLower = medicine.name.toLowerCase();
+    return searchWords.some(word => medicineNameLower.includes(word));
+  });
+
+  if (foundMedicine) {
+    return res.json({ medicineName: foundMedicine.name });
+  } else {
+    return res.status(404).json({ error: "No matching medicine found." });
+  }
+};
