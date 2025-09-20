@@ -99,14 +99,48 @@ const MedsScanner = () => {
           throw new Error("No text detected in the image");
         }
         
-        setDetectedText(result.text.join(", "));
+        const detectedText = result.text.join(" ");
+        setDetectedText(detectedText);
         
-        // Add a small delay for better UX
-        setTimeout(() => {
-          // URL encode the medicine name to handle special characters
-          const medicineName = encodeURIComponent(result.text[0]);
-          navigate(`/product/meds/${medicineName}`);
-        }, 500);
+        // Perform fuzzy search on detected text
+        try {
+          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+          const fuzzySearchResponse = await fetch(`${backendUrl}/product/meds/search`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ detectedText }),
+            credentials: 'include'
+          });
+
+          if (fuzzySearchResponse.ok) {
+            const fuzzyResult = await fuzzySearchResponse.json();
+            console.log("Fuzzy search result:", fuzzyResult);
+            
+            // Navigate to the found medicine
+            setTimeout(() => {
+              const medicineName = encodeURIComponent(fuzzyResult.medicineName);
+              navigate(`/product/meds/${medicineName}`);
+            }, 500);
+          } else {
+            // If fuzzy search fails, show the detected text to user
+            const fuzzyError = await fuzzySearchResponse.json();
+            setTimeout(() => {
+              alert(`Medicine not found in database. Detected text: "${detectedText}"\n${fuzzyError.suggestion || ''}`);
+              setIsScanning(false);
+              setScanningAnimation(false);
+            }, 500);
+          }
+        } catch (fuzzyError) {
+          console.error("Fuzzy search error:", fuzzyError);
+          // If fuzzy search fails, show the detected text to user
+          setTimeout(() => {
+            alert(`Could not search medicine database. Detected text: "${detectedText}"`);
+            setIsScanning(false);
+            setScanningAnimation(false);
+          }, 500);
+        }
       } catch (error) {
         console.error("Error processing image:", error);
         setIsScanning(false);

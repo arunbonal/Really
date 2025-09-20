@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
     {
       productId: { type: String, required: true }, // Changed from ObjectId to String for barcode numbers
       productName: { type: String, default: "Unknown Product" }, // Add product name field
-      category: { type: String, enum: ["medicine", "food", "beauty"] },
+      category: { type: String, enum: ["medicine", "meds", "food", "beauty"] },
       scanDate: { type: Date, default: Date.now },
     },
   ],

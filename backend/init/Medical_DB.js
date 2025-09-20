@@ -1135,6 +1135,36 @@ const data = {
     "trust": ["Popular pediatric & adult painkiller"],
     "alternatives": ["Combiflam", "Flexon"],
     "brands": ["Ibugesic Plus"]
+  },
+  "vitamin_d3_60000": {
+    "name": "Vitamin D3 60000 IU",
+    "purpose": "Vitamin D deficiency treatment and bone health support",
+    "ingredients": "Cholecalciferol (Vitamin D3) 60000 IU",
+    "sideEffects": "Nausea, vomiting, weakness, kidney problems (if overdosed)",
+    "warnings": "Do not exceed recommended dose; monitor calcium levels during treatment",
+    "interactions": "Thiazide diuretics, digitalis, calcium supplements",
+    "age": "Adults and adolescents above 12 years",
+    "pregnancy": "Safe in recommended doses, consult doctor",
+    "diabetes": "Safe, may help improve insulin sensitivity",
+    "trust": ["Prescription vitamin supplement", "Doctor recommended"],
+    "alternatives": ["Calcirol", "Arachitol", "Uprise D3"],
+    "brands": ["D-Rise", "Uprise", "Calcirol"]
+  },
+  "d_rise": {
+    "name": "D-Rise 60K",
+    "purpose": "High-dose Vitamin D3 for severe deficiency",
+    "ingredients": "Cholecalciferol 60000 IU",
+    "sideEffects": "Hypercalcemia, nausea, fatigue, kidney stones (rare)",
+    "warnings": "Take only as prescribed; usually weekly or monthly dosing",
+    "interactions": "Calcium supplements, heart medications, water pills",
+    "age": "Adults only, children require different dosing",
+    "pregnancy": "Generally safe, monitor levels",
+    "diabetes": "Safe and beneficial",
+    "trust": ["USV Pharma", "Widely prescribed"],
+    "alternatives": ["Uprise D3", "Calcirol sachets", "Arachitol"],
+    "brands": ["D-Rise"]
   }
 
 }
+
+module.exports = data;
